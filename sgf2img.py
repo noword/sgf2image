@@ -5,9 +5,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('sgf_name', action='store', nargs='?', help='sgf file name')
     parser.add_argument('image_name', action='store', nargs='?', help='output image file name')
+    parser.add_argument('--start_number', action='store', type=int, nargs='?')
     parser.add_argument('--start', action='store', type=int, nargs='?')
-    parser.add_argument('--from', action='store', type=int, nargs='?')
-    parser.add_argument('--to', action='store', type=int, nargs='?')
+    parser.add_argument('--end', action='store', type=int, nargs='?')
     parser.add_argument('--theme', action='store', default='real-stones', help='default theme is real-stones')
     parser.add_argument('--list_themes', action='store_true', default=False)
     args = parser.parse_args()
@@ -22,4 +22,4 @@ if __name__ == '__main__':
     else:
         theme = themes[args.theme]
         gig = GameImageGenerator(theme)
-        gig.get_game_image(args.sgf_name, start=1).save(args.image_name)
+        gig.get_game_image(args.sgf_name, start_number=args.start_number, start=args.start, end=args.end).save(args.image_name)
