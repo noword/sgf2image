@@ -8,7 +8,7 @@ if __name__ == '__main__':
     parser.add_argument('--start', action='store', type=int, nargs='?')
     parser.add_argument('--from', action='store', type=int, nargs='?')
     parser.add_argument('--to', action='store', type=int, nargs='?')
-    parser.add_argument('--theme', action='store', default='real-stones')
+    parser.add_argument('--theme', action='store', default='real-stones', help='default theme is real-stones')
     parser.add_argument('--list_themes', action='store_true', default=False)
     args = parser.parse_args()
 

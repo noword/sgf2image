@@ -21,6 +21,8 @@ class Theme:
                         value[i] = os.path.join(_path, value[i])
                 else:
                     self._theme[key] = os.path.join(_path, value)
+        if 'font' not in self._theme:
+            self._theme['font'] = './themes/DroidSansMono.ttf'
 
     def __getitem__(self, key):
         return self._theme.get(key)

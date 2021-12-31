@@ -82,7 +82,7 @@ class GameImageGenerator:
         self._grid_pos = None
         self._black_images = None
         self._white_images = None
-        self.font = ImageFont.truetype('DroidSansMono.ttf', int(self.default_width * 0.02))
+        self.font = ImageFont.truetype(self.theme['font'], int(self.default_width * 0.02))
 
     def get_board_image(self, size=19):
         if self.size == size and self._board_imgage is not None:
@@ -152,16 +152,6 @@ class GameImageGenerator:
             return None
         images = self._black_images if s == 'b' else self._white_images
         return images[random.randint(0, len(images) - 1)]
-        # if number:
-        #     number = str(number)
-        #     draw = ImageDraw.ImageDraw(stone)
-        #     w, h = stone.size
-        #     _w, _h = self.font.getsize(number)
-        #     draw.text(((w - _w) // 2, (h - _h) // 2),
-        #               number,
-        #               fill='black' if s == 'w' else 'white',
-        #               font=self.font)
-        # return stone
 
     def load_stone_images(self, force=False):
         if force or self._black_images is None:
