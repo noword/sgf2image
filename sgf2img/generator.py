@@ -186,7 +186,7 @@ class GameImageGenerator:
         grid_pos = self.get_grid_pos(sgf_game.get_size())
         board_image = self.get_board_image(sgf_game.get_size()).copy()
         self.load_stone_images()
-        stone_offset = self._black_images[0].size[0] // 2 // self.theme['scaling_ratio']
+        stone_offset = int(self._black_images[0].size[0] // 2 // self.theme['scaling_ratio'])
         stone_offset += int(stone_offset * self.theme['adjust_ratio'])
         self.size = sgf_game.get_size()
         # draw stones

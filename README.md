@@ -1,4 +1,4 @@
-# usage:
+# Usage:
 ```
 usage: sgf2img.py [-h] [--start_number [START_NUMBER]] [--start [START]]
                   [--end [END]] [--theme THEME] [--list_themes]
@@ -17,7 +17,7 @@ optional arguments:
   --list_themes
 ```
 
-# examples:
+# Examples:
 
 `sgf2img.py AlphaGo_AlphaGo_第一局_简体.sgf 1.jpg`
 
@@ -28,3 +28,6 @@ optional arguments:
 
 ` sgf2img.py AlphaGo_AlphaGo_第一局_简体.sgf Lizzie-look.jpg --theme Lizzie-look --start 5 --end 10`
 ![](gallery/Lizzie-look.jpg)
+
+# About themes
+All themes come from [Sabaki](https://github.com/SabakiHQ/Sabaki/) and [KaTrain](https://github.com/sanderland/katrain)
