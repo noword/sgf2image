@@ -155,7 +155,7 @@ class GameImageGenerator:
 
     def load_stone_images(self, force=False):
         if force or self._black_images is None:
-            stone_size = int(self.get_grid_pos().grid_size * 0.9)
+            stone_size = int(self.get_grid_pos().grid_size * 0.9 * self.theme['scaling_ratio'])
             self._black_images = [Image.open(b).resize((stone_size, stone_size)) for b in self.theme['black']]
             self._white_images = [Image.open(w).resize((stone_size, stone_size)) for w in self.theme['white']]
 
@@ -186,7 +186,8 @@ class GameImageGenerator:
         grid_pos = self.get_grid_pos(sgf_game.get_size())
         board_image = self.get_board_image(sgf_game.get_size()).copy()
         self.load_stone_images()
-        stone_offset = self._black_images[0].size[0] // 2
+        stone_offset = self._black_images[0].size[0] // 2 // self.theme['scaling_ratio']
+        stone_offset += int(stone_offset * self.theme['adjust_ratio'])
         self.size = sgf_game.get_size()
         # draw stones
         for x in range(self.size):

@@ -21,8 +21,15 @@ class Theme:
                         value[i] = os.path.join(_path, value[i])
                 else:
                     self._theme[key] = os.path.join(_path, value)
+
         if 'font' not in self._theme:
             self._theme['font'] = './themes/DroidSansMono.ttf'
+
+        if 'scaling_ratio' not in self._theme:
+            self._theme['scaling_ratio'] = 1
+
+        if 'adjust_ratio' not in self._theme:
+            self._theme['adjust_ratio'] = 0
 
     def __getitem__(self, key):
         return self._theme.get(key)
