@@ -159,7 +159,7 @@ class GameImageGenerator:
             self._black_images = [Image.open(b).resize((stone_size, stone_size)) for b in self.theme['black']]
             self._white_images = [Image.open(w).resize((stone_size, stone_size)) for w in self.theme['white']]
 
-    def get_game_image(self, sgf_path, img_size=None, start_number=None, start=None, end=None):
+    def get_board_and_plays(self, sgf_path):
         try:
             sgf_game = sgf.Sgf_game.from_bytes(open(sgf_path, 'rb').read())
         except ValueError:
@@ -169,6 +169,11 @@ class GameImageGenerator:
             board, plays = sgf_moves.get_setup_and_moves(sgf_game)
         except ValueError as e:
             raise Exception(str(e))
+
+        return board, plays
+
+    def get_sgf_info(self, sgf_path, end=None):
+        board, plays = self.get_board_and_plays(sgf_path)
 
         for i, (colour, move) in enumerate(plays, start=1):
             if move is None:
@@ -183,12 +188,18 @@ class GameImageGenerator:
             if i == end:
                 break
 
-        grid_pos = self.get_grid_pos(sgf_game.get_size())
-        board_image = self.get_board_image(sgf_game.get_size()).copy()
+        return board, plays
+
+    def get_game_image(self, sgf_path, img_size=None, start_number=None, start=None, end=None):
+        board, plays = self.get_sgf_info(sgf_path, end)
+
+        grid_pos = self.get_grid_pos(board.side)
+        board_image = self.get_board_image(board.side).copy()
         self.load_stone_images()
         stone_offset = int(self._black_images[0].size[0] // 2 // self.theme['scaling_ratio'])
         stone_offset += int(stone_offset * self.theme['adjust_ratio'])
-        self.size = sgf_game.get_size()
+        self.size = board.side
+
         # draw stones
         for x in range(self.size):
             for y in range(self.size):
@@ -197,8 +208,8 @@ class GameImageGenerator:
                     board_image.paste(stone_image,
                                       #   (grid_pos[x][y].x - stone_offset,
                                       #    grid_pos[x][y].y - stone_offset),
-                                      (grid_pos[x][y].x - stone_offset + random.randint(-2, 2),
-                                       grid_pos[x][y].y - stone_offset + random.randint(-2, 2)),
+                                      (grid_pos[x][y].x - stone_offset + random.randint(-1, 1),
+                                       grid_pos[x][y].y - stone_offset + random.randint(-1, 1)),
                                       stone_image)
 
         # draw numbers

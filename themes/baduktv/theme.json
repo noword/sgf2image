@@ -11,8 +11,8 @@
         "glass_white3.png"
     ],
     "board": "goban_texture_smooth.png",
-    "scaling_ratio": 1.2,
-    "adjust_ratio": 0.14,
+    "scaling_ratio": 1.25,
+    "adjust_ratio": 0.28,
     "board_resize": true,
     "line_color": "black"
 }

@@ -9,6 +9,7 @@ if __name__ == '__main__':
     parser.add_argument('--start', action='store', type=int, nargs='?')
     parser.add_argument('--end', action='store', type=int, nargs='?')
     parser.add_argument('--theme', action='store', default='real-stones', help='default theme is real-stones')
+    parser.add_argument('--disable_coordinates', action='store_true', default=False)
     parser.add_argument('--list_themes', action='store_true', default=False)
     args = parser.parse_args()
 
@@ -21,5 +22,5 @@ if __name__ == '__main__':
         parser.print_help()
     else:
         theme = themes[args.theme]
-        gig = GameImageGenerator(theme)
+        gig = GameImageGenerator(theme, not args.disable_coordinates)
         gig.get_game_image(args.sgf_name, start_number=args.start_number, start=args.start, end=args.end).save(args.image_name)
