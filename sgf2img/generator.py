@@ -234,7 +234,7 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
                 start_number = start
 
             coor = {}
-            colors = {'b': 'black', 'w': 'white'}
+            colors = {'b': 'white', 'w': 'black'}
             for i, (colour, move) in enumerate(plays, start=1):
                 if move is None:
                     continue
