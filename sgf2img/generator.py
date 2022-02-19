@@ -10,8 +10,10 @@ Point = namedtuple('Point', ['x', 'y'])
 
 
 class GridPosition:
+    BOARD_RATE = 0.8
+
     def __init__(self, width, size):
-        self._board_width = width * 0.85
+        self._board_width = width * self.BOARD_RATE
         x0 = (width - self._board_width) / 2
         y0 = (width - self._board_width) / 2
         self._grid_size = self._board_width / (size - 1)
@@ -72,40 +74,48 @@ class GridPosition:
         return self._grid_pos[index]
 
 
-class GameImageGenerator:
-    def __init__(self, theme, with_coordinates=True):
+class BaseGenerator:
+    DEFAULT_WIDTH = 1024
+
+    def __init__(self, theme):
         self.theme = theme
+
+        # load font
+        self.font = ImageFont.truetype(self.theme['font'], int(self.DEFAULT_WIDTH * 0.02))
+
+
+class BoardImageGenerator(BaseGenerator):
+    def __init__(self, theme, with_coordinates=True):
+        super(BoardImageGenerator, self).__init__(theme)
         self.with_coordinates = with_coordinates
-        self.size = None
-        self.default_width = 1024
-        self._board_image = None
-        self._grid_pos = None
-        self._black_images = None
-        self._white_images = None
-        self.font = ImageFont.truetype(self.theme['font'], int(self.default_width * 0.02))
+        self._board_images = {}
+        self._board_image = Image.open(self.theme['board'])
 
     def get_board_image(self, size=19):
-        if self.size == size and self._board_imgage is not None:
-            return self._board_image
+        if size not in self._board_images:
+            self._board_images[size] = self._gen_board_image(size)
+        return self._board_images[size]
 
-        self.size = size
-        img = Image.open(self.theme['board'])
-        w, h = img.size
+    def _gen_board_image(self, size):
+        w, h = self._board_image.size
         if self.theme['board_resize']:
-            self._board_image = img.resize((self.default_width, self.default_width)).convert('RGB')
+            board_image = self._board_image.resize((self.DEFAULT_WIDTH, self.DEFAULT_WIDTH)).convert('RGB')
         else:
-            self._board_image = Image.new('RGB', (self.default_width, self.default_width))
-            for x in range(0, self.default_width, w):
-                for y in range(0, self.default_width, h):
-                    self._board_image.paste(img, (x, y))
+            board_image = Image.new('RGB', (self.DEFAULT_WIDTH, self.DEFAULT_WIDTH))
+            for x in range(0, self.DEFAULT_WIDTH, w):
+                for y in range(0, self.DEFAULT_WIDTH, h):
+                    board_image.paste(self._board_image, (x, y))
 
-        draw = ImageDraw.ImageDraw(self._board_image)
-        grid_pos = self.get_grid_pos(size)
+        draw = ImageDraw.ImageDraw(board_image)
+        grid_pos = GridPosition(self.DEFAULT_WIDTH, size)
+
+        # draw lines
         for i in range(size):
             draw.line((grid_pos[i][0].x, grid_pos[i][0].y, grid_pos[i][-1].x, grid_pos[i][0].y), self.theme['line_color'])
-            draw.line((grid_pos[0][i].x, grid_pos[0][i].y, grid_pos[-1][i].x, grid_pos[-1][i].y), fill=self.theme['line_color'])
+            draw.line((grid_pos[0][i].x, grid_pos[0][i].y, grid_pos[-1][i].x, grid_pos[-1][i].y), self.theme['line_color'])
 
-        start_size = self.default_width * 0.005
+        # draw stars
+        start_size = self.DEFAULT_WIDTH * 0.005
         for x in grid_pos.star_coords:
             for y in grid_pos.star_coords:
                 _x, _y = grid_pos[y][x]
@@ -115,8 +125,9 @@ class GameImageGenerator:
                               _y + start_size),
                              fill=self.theme['line_color'])
 
-        grid_size = grid_pos.grid_size
         if self.with_coordinates:
+            # draw coordinates
+            grid_size = grid_pos.grid_size
             fw, fh = self.font.getsize('A')
             for i in range(size):
                 draw.text((grid_pos[0][i].x, grid_pos[0][i].y + grid_size),
@@ -140,26 +151,31 @@ class GameImageGenerator:
                           font=self.font,
                           anchor='mm')
 
-        return self._board_image
+        return board_image
 
-    def get_grid_pos(self, size=19):
-        if size != size or self._grid_pos is None:
-            self._grid_pos = GridPosition(self.default_width, size)
-        return self._grid_pos
 
-    def get_stone_image(self, s):
-        if s is None:
-            return None
-        images = self._black_images if s == 'b' else self._white_images
-        return images[random.randint(0, len(images) - 1)]
+class StoneImageGenerator(BaseGenerator):
+    def __init__(self, theme):
+        super().__init__(theme)
+        self._org_stone_images = {'b': [Image.open(b) for b in self.theme['black']],
+                                  'w': [Image.open(w) for w in self.theme['white']]}
+        self._stone_images = {}
 
-    def load_stone_images(self, force=False):
-        if force or self._black_images is None:
-            stone_size = int(self.get_grid_pos().grid_size * 0.9 * self.theme['scaling_ratio'])
-            self._black_images = [Image.open(b).resize((stone_size, stone_size)) for b in self.theme['black']]
-            self._white_images = [Image.open(w).resize((stone_size, stone_size)) for w in self.theme['white']]
+    def get_stone_image(self, color, size):
+        if size not in self._stone_images:
+            grid_pos = GridPosition(self.DEFAULT_WIDTH, size)
+            stone_size = int(grid_pos.grid_size * 0.9 * self.theme['scaling_ratio'])
+            self._stone_images[size] = {'b': [img.resize((stone_size, stone_size)) for img in self._org_stone_images['b']],
+                                        'w': [img.resize((stone_size, stone_size)) for img in self._org_stone_images['w']]}
+        imgs = self._stone_images[size][color]
+        return imgs[random.randint(0, len(imgs) - 1)]
 
-    def get_board_and_plays(self, sgf_path):
+
+class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
+    def __init__(self, *args, **kwargs):
+        super(GameImageGenerator, self).__init__(*args, **kwargs)
+
+    def _get_board_and_plays(self, sgf_path):
         try:
             sgf_game = sgf.Sgf_game.from_bytes(open(sgf_path, 'rb').read())
         except ValueError:
@@ -172,8 +188,8 @@ class GameImageGenerator:
 
         return board, plays
 
-    def get_sgf_info(self, sgf_path, end=None):
-        board, plays = self.get_board_and_plays(sgf_path)
+    def _get_sgf_info(self, sgf_path, end=None):
+        board, plays = self._get_board_and_plays(sgf_path)
 
         for i, (colour, move) in enumerate(plays, start=1):
             if move is None:
@@ -191,23 +207,22 @@ class GameImageGenerator:
         return board, plays
 
     def get_game_image(self, sgf_path, img_size=None, start_number=None, start=None, end=None):
-        board, plays = self.get_sgf_info(sgf_path, end)
+        board, plays = self._get_sgf_info(sgf_path, end)
 
-        grid_pos = self.get_grid_pos(board.side)
+        grid_pos = GridPosition(self.DEFAULT_WIDTH, board.side)
+
         board_image = self.get_board_image(board.side).copy()
-        self.load_stone_images()
-        stone_offset = int(self._black_images[0].size[0] // 2 // self.theme['scaling_ratio'])
+
+        stone_offset = int(self.get_stone_image('b', board.side).size[0] // 2 // self.theme['scaling_ratio'])
         stone_offset += int(stone_offset * self.theme['adjust_ratio'])
-        self.size = board.side
 
         # draw stones
-        for x in range(self.size):
-            for y in range(self.size):
-                stone_image = self.get_stone_image(board.get(x, y))
-                if stone_image:
+        for x in range(board.side):
+            for y in range(board.side):
+                color = board.get(x, y)
+                if color:
+                    stone_image = self.get_stone_image(color, board.side)
                     board_image.paste(stone_image,
-                                      #   (grid_pos[x][y].x - stone_offset,
-                                      #    grid_pos[x][y].y - stone_offset),
                                       (grid_pos[x][y].x - stone_offset + random.randint(-1, 1),
                                        grid_pos[x][y].y - stone_offset + random.randint(-1, 1)),
                                       stone_image)
@@ -219,6 +234,7 @@ class GameImageGenerator:
                 start_number = start
 
             coor = {}
+            colors = {'b': 'black', 'w': 'white'}
             for i, (colour, move) in enumerate(plays, start=1):
                 if move is None:
                     continue
@@ -230,7 +246,7 @@ class GameImageGenerator:
                         row, col = move
                         draw.text((grid_pos[row][col].x, grid_pos[row][col].y),
                                   str(start_number),
-                                  fill='white' if board.get(row, col) == 'b' else 'black',
+                                  fill=colors[board.get(row, col)],
                                   font=self.font,
                                   anchor='mm')
                         start_number += 1
@@ -242,4 +258,5 @@ class GameImageGenerator:
 
         if img_size:
             board_image = board_image.resize((img_size, img_size))
+
         return board_image
