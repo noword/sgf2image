@@ -156,7 +156,7 @@ class BoardImageGenerator(BaseGenerator):
 
 class StoneImageGenerator(BaseGenerator):
     def __init__(self, theme):
-        super().__init__(theme)
+        super(StoneImageGenerator, self).__init__(theme)
         self._org_stone_images = {'b': [Image.open(b) for b in self.theme['black']],
                                   'w': [Image.open(w) for w in self.theme['white']]}
         self._stone_images = {}
