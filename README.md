@@ -25,7 +25,7 @@ optional arguments:
 
 ![](gallery/real-stones.jpg)
 
-`sgf2img.py AlphaGo_AlphaGo_第一局_简体.sgf koast.jpg --theme koast --start_number 1`
+`sgf2img.py AlphaGo_AlphaGo_第一局_简体.sgf koast.jpg --theme koast --start 1`
 ![](gallery/koast.jpg)
 
 `sgf2img.py AlphaGo_AlphaGo_第一局_简体.sgf Lizzie-look.jpg --theme Lizzie-look --start 5 --end 10`
