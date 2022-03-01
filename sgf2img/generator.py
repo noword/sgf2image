@@ -175,7 +175,7 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
     def __init__(self, *args, **kwargs):
         super(GameImageGenerator, self).__init__(*args, **kwargs)
 
-    def _get_board_and_plays(self, sgf_path):
+    def _get_sgf_info(self, sgf_path, end=None):
         try:
             sgf_game = sgf.Sgf_game.from_bytes(open(sgf_path, 'rb').read())
         except ValueError:
@@ -185,11 +185,6 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
             board, plays = sgf_moves.get_setup_and_moves(sgf_game)
         except ValueError as e:
             raise Exception(str(e))
-
-        return board, plays
-
-    def _get_sgf_info(self, sgf_path, end=None):
-        board, plays = self._get_board_and_plays(sgf_path)
 
         for i, (colour, move) in enumerate(plays, start=1):
             if move is None:
