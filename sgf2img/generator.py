@@ -54,21 +54,25 @@ class GridPosition:
     def board_width(self):
         return self._board_width
 
+    # left
     @property
     def x0(self):
         return self._grid_pos[0][0].x
 
+    # top
     @property
     def y0(self):
-        return self._grid_pos[0][0].y
+        return self._grid_pos[-1][-1].y
 
+    # right
     @property
     def x1(self):
         return self._grid_pos[-1][-1].x
 
+    # bottom
     @property
     def y1(self):
-        return self._grid_pos[-1][-1].y
+        return self._grid_pos[0][0].y
 
     def __getitem__(self, index):
         return self._grid_pos[index]
