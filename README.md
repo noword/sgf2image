@@ -1,3 +1,10 @@
+# Dependencies
+[python](https://www.python.org/) >= 3.6
+
+[pillow](https://python-pillow.org/)
+
+[sgfmill](https://mjw.woodcraft.me.uk/sgfmill/)
+
 # Usage:
 ```
 usage: sgf2img.py [-h] [--start_number [START_NUMBER]] [--start [START]]
