@@ -84,9 +84,6 @@ class BaseGenerator:
     def __init__(self, theme):
         self.theme = theme
 
-        # load font
-        self.font = ImageFont.truetype(self.theme['font'], int(self.DEFAULT_WIDTH * 0.02))
-
 
 class BoardImageGenerator(BaseGenerator):
     def __init__(self, theme, with_coordinates=True):
@@ -205,7 +202,11 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
 
         return board, plays
 
-    def get_game_image(self, sgf_path, img_size=None, start_number=None, start=None, end=None):
+    def get_game_image(self, sgf_path, img_size=1024, start_number=None, start=None, end=None):
+        self.DEFAULT_WIDTH = img_size
+
+        self.font = ImageFont.truetype(self.theme['font'], int(self.DEFAULT_WIDTH * 0.02))
+
         board, plays = self._get_sgf_info(sgf_path, end)
 
         grid_pos = GridPosition(self.DEFAULT_WIDTH, board.side)
@@ -258,8 +259,5 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
 
         for counts in filter(lambda x: len(x) > 1, coor.values()):
             print(' = '.join([str(c) for c in counts]))
-
-        if img_size:
-            board_image = board_image.resize((img_size, img_size))
 
         return board_image
