@@ -253,7 +253,7 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
                               fill=num_color[board.get(row, col)],
                               font=self.font,
                               anchor='mm')
-                    start_number += 1
+                start_number += 1
             if i == end:
                 break
 
