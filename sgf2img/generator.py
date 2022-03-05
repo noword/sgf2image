@@ -83,6 +83,7 @@ class BaseGenerator:
 
     def __init__(self, theme):
         self.theme = theme
+        self.font = ImageFont.truetype(self.theme['font'], int(self.DEFAULT_WIDTH * 0.02))
 
 
 class BoardImageGenerator(BaseGenerator):
@@ -203,9 +204,9 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
         return board, plays
 
     def get_game_image(self, sgf_path, img_size=1024, start_number=None, start=None, end=None):
-        self.DEFAULT_WIDTH = img_size
-
-        self.font = ImageFont.truetype(self.theme['font'], int(self.DEFAULT_WIDTH * 0.02))
+        if img_size != self.DEFAULT_WIDTH:
+            self.DEFAULT_WIDTH = img_size
+            self.font = ImageFont.truetype(self.theme['font'], int(self.DEFAULT_WIDTH * 0.02))
 
         board, plays = self._get_sgf_info(sgf_path, end)
 
