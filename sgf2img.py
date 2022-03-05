@@ -5,7 +5,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('sgf_name', action='store', nargs='?', help='sgf file name')
     parser.add_argument('image_name', action='store', nargs='?', help='output image file name')
-    parser.add_argument('--img_size', action='store', type=int, nargs='?', help='set the image size')
+    parser.add_argument('--img_size', action='store', type=int, default=1024, nargs='?', help='set the image size')
     parser.add_argument('--start_number', action='store', type=int, nargs='?')
     parser.add_argument('--start', action='store', type=int, nargs='?')
     parser.add_argument('--end', action='store', type=int, nargs='?')

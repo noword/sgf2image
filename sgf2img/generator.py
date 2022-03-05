@@ -201,7 +201,7 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
             if i == end:
                 break
 
-        return board, plays
+        return board, plays[:end]
 
     def get_game_image(self, sgf_path, img_size=1024, start_number=None, start=None, end=None):
         if img_size != self.DEFAULT_WIDTH:
@@ -209,6 +209,8 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
             self.font = ImageFont.truetype(self.theme['font'], int(self.DEFAULT_WIDTH * 0.02))
 
         board, plays = self._get_sgf_info(sgf_path, end)
+        if end is None:
+            end = len(plays)
 
         grid_pos = GridPosition(self.DEFAULT_WIDTH, board.side)
 
@@ -225,40 +227,39 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
         num_color = {'b': 'white',
                      'w': self.theme['line_color'],
                      None: self.theme['line_color']}
-        for i, (colour, move) in enumerate(plays, start=1):
+        for colour, move in plays[::-1]:
             if move is None:
                 continue
 
             row, col = move
-            color = board.get(row, col)
-            x_offset = y_offset = 0
+            if move in coor:
+                coor[move].append(end)
+            else:
+                coor[move] = [end]
+                color = board.get(row, col)
+                x_offset = y_offset = 0
 
-            # draw stone
-            if color:
-                stone_image = self.get_stone_image(color, board.side)
-                x_offset = random.randint(-1, 1)
-                y_offset = random.randint(-1, 1)
-                board_image.paste(stone_image,
-                                  (grid_pos[row][col].x - stone_offset + x_offset,
-                                   grid_pos[row][col].y - stone_offset + y_offset),
-                                  stone_image)
+                # draw stone
+                if color:
+                    stone_image = self.get_stone_image(color, board.side)
+                    x_offset = random.randint(-1, 1)
+                    y_offset = random.randint(-1, 1)
+                    board_image.paste(stone_image,
+                                      (grid_pos[row][col].x - stone_offset + x_offset,
+                                       grid_pos[row][col].y - stone_offset + y_offset),
+                                      stone_image)
 
-            if start and i >= start:
-                # draw number
-                if move in coor:
-                    coor[move].append(i)
-                else:
-                    coor[move] = [i]
-                    draw.text((grid_pos[row][col].x, grid_pos[row][col].y),
-                              str(start_number),
-                              fill=num_color[board.get(row, col)],
+                if start and end >= start:
+                    # draw number
+                    draw.text((grid_pos[row][col].x + x_offset, grid_pos[row][col].y + y_offset),
+                              str(end),
+                              fill=num_color[color],
                               font=self.font,
                               anchor='mm')
-                start_number += 1
-            if i == end:
-                break
+            end -= 1
 
-        for counts in filter(lambda x: len(x) > 1, coor.values()):
-            print(' = '.join([str(c) for c in counts]))
+        if start:
+            for counts in filter(lambda x: len(x) > 1, coor.values()):
+                print(' = '.join([str(c) for c in counts]))
 
         return board_image
