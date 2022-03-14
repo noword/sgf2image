@@ -50,7 +50,7 @@ class GridPosition:
 
     @property
     def half_grid_size(self):
-        return self._grid_pos / 2
+        return self._grid_size / 2
 
     @property
     def board_width(self):
