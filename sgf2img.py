@@ -12,7 +12,7 @@ if __name__ == '__main__':
     parser.add_argument('--theme', action='store', default='real-stones', help='default theme is real-stones')
     parser.add_argument('--disable_coordinates', action='store_true', default=False)
     parser.add_argument('--list_themes', action='store_true', default=False, help='list all available themes')
-    parser.add_argument('--part_rect', action='store', nargs='?', help='left,top,bottom,right')
+    parser.add_argument('--part_rect', action='store', nargs='?', help='[left,top,right,bottom] left/bottom is the origin')
     args = parser.parse_args()
 
     themes = GetAllThemes()
