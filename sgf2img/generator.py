@@ -298,7 +298,7 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
             for i in part_rect:
                 if i <= 1:
                     v = 0
-                elif i >= board.side:
+                elif i >= board.side - 1:
                     v = img_size
                 else:
                     v = grid_pos[i][i].x + grid_pos.half_grid_size
