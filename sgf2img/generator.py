@@ -79,6 +79,18 @@ class GridPosition:
     def __getitem__(self, index):
         return self._grid_pos[index]
 
+    def get_xy(self, x, y):
+        # get coords from pixel
+        if not(self.x0 - self.half_grid_size < x < self.x1 + self.half_grid_size
+               and self.y0 - self.half_grid_size < y < self.y1 + self.half_grid_size):
+            return None
+
+        x -= self.x0 - self.half_grid_size
+        y -= self.y0 - self.half_grid_size
+        y = self.board_width + self.grid_size - y
+
+        return int(x // self.grid_size), int(y // self.grid_size)
+
 
 class BaseGenerator:
     DEFAULT_WIDTH = 1024
@@ -175,8 +187,15 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
         super(GameImageGenerator, self).__init__(*args, **kwargs)
 
     def _get_sgf_info(self, sgf_path, end=None):
+        if isinstance(sgf_path, str):
+            sgf_bytes = open(sgf_path, 'rb').read()
+        elif isinstance(sgf_path, bytes):
+            sgf_bytes = sgf_path
+        else:
+            raise TypeError
+
         try:
-            sgf_game = sgf.Sgf_game.from_bytes(open(sgf_path, 'rb').read())
+            sgf_game = sgf.Sgf_game.from_bytes(sgf_bytes)
         except ValueError:
             raise Exception("bad sgf file")
 
@@ -229,8 +248,8 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
 
         black_img = self.get_stone_image('b', board.side)
 
-        part_rect = [x - 1 for x in part_rect]
         if part_rect:
+            part_rect = [x - 1 for x in part_rect]
             left, top, right, bottom = part_rect
         else:
             left = top = 0
@@ -295,17 +314,20 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
         if part_rect:
             rect = []
             part_rect[1], part_rect[3] = part_rect[3], part_rect[1]
-            for i in part_rect:
-                if i <= 1:
+            for i, p in enumerate(part_rect):
+                if p <= 1:
                     v = 0
-                elif i >= board.side - 1:
+                elif p >= board.side - 1:
                     v = img_size
                 else:
-                    v = grid_pos[i][i].x + grid_pos.half_grid_size
+                    if i == 1 or i == 2:
+                        v = grid_pos[p][p].x + grid_pos.half_grid_size
+                    else:
+                        v = grid_pos[p][p].x - grid_pos.half_grid_size
                 rect.append(v)
 
             rect[1] = img_size - rect[1]
             rect[3] = img_size - rect[3]
-
+            print(rect)
             board_image = board_image.crop(rect)
         return board_image
