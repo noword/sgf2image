@@ -36,9 +36,7 @@ class GridPosition:
         else:
             star_point_pos = 4
 
-        return [star_point_pos - 1, size - star_point_pos] + (
-            [int(size / 2)] if size % 2 == 1 and size > 7 else []
-        )
+        return [star_point_pos - 1, size - star_point_pos] + ([int(size / 2)] if size % 2 == 1 and size > 7 else [])
 
     @property
     def star_coords(self):
@@ -81,8 +79,10 @@ class GridPosition:
 
     def get_xy(self, x, y):
         # get coords from pixel
-        if not(self.x0 - self.half_grid_size < x < self.x1 + self.half_grid_size
-               and self.y0 - self.half_grid_size < y < self.y1 + self.half_grid_size):
+        if not (
+            self.x0 - self.half_grid_size < x < self.x1 + self.half_grid_size
+            and self.y0 - self.half_grid_size < y < self.y1 + self.half_grid_size
+        ):
             return None
 
         x -= self.x0 - self.half_grid_size
@@ -122,45 +122,55 @@ class BoardImageGenerator(BaseGenerator):
 
         # draw lines
         for i in range(size):
-            draw.line((grid_pos[i][0].x, grid_pos[i][0].y, grid_pos[i][-1].x, grid_pos[i][0].y), self.theme['line_color'])
-            draw.line((grid_pos[0][i].x, grid_pos[0][i].y, grid_pos[-1][i].x, grid_pos[-1][i].y), self.theme['line_color'])
+            draw.line(
+                (grid_pos[i][0].x, grid_pos[i][0].y, grid_pos[i][-1].x, grid_pos[i][0].y), self.theme['line_color']
+            )
+            draw.line(
+                (grid_pos[0][i].x, grid_pos[0][i].y, grid_pos[-1][i].x, grid_pos[-1][i].y), self.theme['line_color']
+            )
 
         # draw stars
         start_size = self.DEFAULT_WIDTH * 0.005
         for x in grid_pos.star_coords:
             for y in grid_pos.star_coords:
                 _x, _y = grid_pos[y][x]
-                draw.ellipse((_x - start_size,
-                              _y - start_size,
-                              _x + start_size,
-                              _y + start_size),
-                             fill=self.theme['line_color'])
+                draw.ellipse(
+                    (_x - start_size, _y - start_size, _x + start_size, _y + start_size), fill=self.theme['line_color']
+                )
 
         if self.with_coordinates:
             # draw coordinates
             grid_size = grid_pos.grid_size
-            fw, fh = self.font.getsize('A')
+            fw = self.font.getlength('A')
             for i in range(size):
-                draw.text((grid_pos[0][i].x, grid_pos[0][i].y + grid_size),
-                          chr(ord('A') + i),
-                          fill=self.theme['line_color'],
-                          font=self.font,
-                          anchor='mm')
-                draw.text((grid_pos[-1][i].x, grid_pos[-1][i].y - grid_size),
-                          chr(ord('A') + i),
-                          fill=self.theme['line_color'],
-                          font=self.font,
-                          anchor='mm')
-                draw.text((grid_pos[i][0].x - grid_size - fw, grid_pos[i][0].y),
-                          str(i + 1),
-                          fill=self.theme['line_color'],
-                          font=self.font,
-                          anchor='mm')
-                draw.text((grid_pos[i][-1].x + grid_size, grid_pos[i][-1].y),
-                          str(i + 1),
-                          fill=self.theme['line_color'],
-                          font=self.font,
-                          anchor='mm')
+                draw.text(
+                    (grid_pos[0][i].x, grid_pos[0][i].y + grid_size),
+                    chr(ord('A') + i),
+                    fill=self.theme['line_color'],
+                    font=self.font,
+                    anchor='mm',
+                )
+                draw.text(
+                    (grid_pos[-1][i].x, grid_pos[-1][i].y - grid_size),
+                    chr(ord('A') + i),
+                    fill=self.theme['line_color'],
+                    font=self.font,
+                    anchor='mm',
+                )
+                draw.text(
+                    (grid_pos[i][0].x - grid_size - fw, grid_pos[i][0].y),
+                    str(i + 1),
+                    fill=self.theme['line_color'],
+                    font=self.font,
+                    anchor='mm',
+                )
+                draw.text(
+                    (grid_pos[i][-1].x + grid_size, grid_pos[i][-1].y),
+                    str(i + 1),
+                    fill=self.theme['line_color'],
+                    font=self.font,
+                    anchor='mm',
+                )
 
         return board_image
 
@@ -168,16 +178,20 @@ class BoardImageGenerator(BaseGenerator):
 class StoneImageGenerator(BaseGenerator):
     def __init__(self, theme):
         super(StoneImageGenerator, self).__init__(theme)
-        self._org_stone_images = {'b': [Image.open(b) for b in self.theme['black']],
-                                  'w': [Image.open(w) for w in self.theme['white']]}
+        self._org_stone_images = {
+            'b': [Image.open(b) for b in self.theme['black']],
+            'w': [Image.open(w) for w in self.theme['white']],
+        }
         self._stone_images = {}
 
     def get_stone_image(self, color, size):
         if size not in self._stone_images:
             grid_pos = GridPosition(self.DEFAULT_WIDTH, size, self.BOARD_RATE)
             stone_size = int(grid_pos.grid_size * 0.9 * self.theme['scaling_ratio'])
-            self._stone_images[size] = {'b': [img.resize((stone_size, stone_size)) for img in self._org_stone_images['b']],
-                                        'w': [img.resize((stone_size, stone_size)) for img in self._org_stone_images['w']]}
+            self._stone_images[size] = {
+                'b': [img.resize((stone_size, stone_size)) for img in self._org_stone_images['b']],
+                'w': [img.resize((stone_size, stone_size)) for img in self._org_stone_images['w']],
+            }
         imgs = self._stone_images[size][color]
         return imgs[random.randint(0, len(imgs) - 1)]
 
@@ -242,9 +256,7 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
             start_number = start
 
         coor = {}
-        num_color = {'b': 'white',
-                     'w': self.theme['line_color'],
-                     None: self.theme['line_color']}
+        num_color = {'b': 'white', 'w': self.theme['line_color'], None: self.theme['line_color']}
 
         black_img = self.get_stone_image('b', board.side)
 
@@ -259,20 +271,22 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
             if top <= row <= bottom and left <= col <= right:
                 x_offset = random.randint(-1, 1)
                 y_offset = random.randint(-1, 1)
-                board_image.paste(black_img,
-                                  (grid_pos[row][col].x - stone_offset + x_offset,
-                                   grid_pos[row][col].y - stone_offset + y_offset),
-                                  black_img)
+                board_image.paste(
+                    black_img,
+                    (grid_pos[row][col].x - stone_offset + x_offset, grid_pos[row][col].y - stone_offset + y_offset),
+                    black_img,
+                )
 
         white_img = self.get_stone_image('w', board.side)
         for row, col in setups[1]:
             if top <= row <= bottom and left <= col <= right:
                 x_offset = random.randint(-1, 1)
                 y_offset = random.randint(-1, 1)
-                board_image.paste(white_img,
-                                  (grid_pos[row][col].x - stone_offset + x_offset,
-                                   grid_pos[row][col].y - stone_offset + y_offset),
-                                  white_img)
+                board_image.paste(
+                    white_img,
+                    (grid_pos[row][col].x - stone_offset + x_offset, grid_pos[row][col].y - stone_offset + y_offset),
+                    white_img,
+                )
 
         for colour, move in plays[::-1]:
             if move is None:
@@ -293,18 +307,24 @@ class GameImageGenerator(BoardImageGenerator, StoneImageGenerator):
                     stone_image = self.get_stone_image(color, board.side)
                     x_offset = random.randint(-1, 1)
                     y_offset = random.randint(-1, 1)
-                    board_image.paste(stone_image,
-                                      (grid_pos[row][col].x - stone_offset + x_offset,
-                                       grid_pos[row][col].y - stone_offset + y_offset),
-                                      stone_image)
+                    board_image.paste(
+                        stone_image,
+                        (
+                            grid_pos[row][col].x - stone_offset + x_offset,
+                            grid_pos[row][col].y - stone_offset + y_offset,
+                        ),
+                        stone_image,
+                    )
 
                 if start and end >= start:
                     # draw number
-                    draw.text((grid_pos[row][col].x + x_offset, grid_pos[row][col].y + y_offset),
-                              str(end),
-                              fill=num_color[color],
-                              font=self.font,
-                              anchor='mm')
+                    draw.text(
+                        (grid_pos[row][col].x + x_offset, grid_pos[row][col].y + y_offset),
+                        str(end),
+                        fill=num_color[color],
+                        font=self.font,
+                        anchor='mm',
+                    )
             end -= 1
 
         if start:
