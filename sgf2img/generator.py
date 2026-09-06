@@ -8,6 +8,11 @@ from sgfmill import sgf, sgf_moves
 
 Point = namedtuple('Point', ['x', 'y'])
 
+# Go board columns are lettered A, B, ... H, J, ... -- "I" is skipped, so that
+# it cannot be confused with the digit 1 or with "J" in handwriting. This is
+# the convention used by SGF viewers, GTP engines and the standard notation.
+COLUMN_LETTERS = 'ABCDEFGHJKLMNOPQRSTUVWXYZ'
+
 
 class GridPosition:
     def __init__(self, width, size, board_rate=0.8):
@@ -145,14 +150,14 @@ class BoardImageGenerator(BaseGenerator):
             for i in range(size):
                 draw.text(
                     (grid_pos[0][i].x, grid_pos[0][i].y + grid_size),
-                    chr(ord('A') + i),
+                    COLUMN_LETTERS[i],
                     fill=self.theme['line_color'],
                     font=self.font,
                     anchor='mm',
                 )
                 draw.text(
                     (grid_pos[-1][i].x, grid_pos[-1][i].y - grid_size),
-                    chr(ord('A') + i),
+                    COLUMN_LETTERS[i],
                     fill=self.theme['line_color'],
                     font=self.font,
                     anchor='mm',
